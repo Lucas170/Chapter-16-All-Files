@@ -414,6 +414,7 @@ int OpenPosition(int TYPE, double LOT, int SL, int TP, int Magic, int Slip, bool
            {
             HandleTradingEnvironment(Journaling, RetryInterval);
             ModifyOpen=OrderModify(Ticket,OrderOpenPrice(),stoploss,takeprofit,expiration,arrow_color);
+            if(Journaling && !ModifyOpen)Print("EA Journaling: Take Profit and Stop Loss not set. Error Description: "+GetErrorDescription(GetLastError()));
            }
         }
      }
