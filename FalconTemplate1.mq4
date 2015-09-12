@@ -43,7 +43,7 @@ extern bool    OnJournaling = true; // Add EA updates in the Journal Tab
 
 string  InternalHeader1="----------Errors Handling Settings-----------";
 int     RetryInterval=100; // Pause Time before next retry (in milliseconds)
-int     MaxRetriesPerTick=1;
+int     MaxRetriesPerTick=10;
 
 string  InternalHeader2="----------Service Variables-----------";
 
@@ -119,11 +119,11 @@ int start()
       
    if(IsMaxPositionsReached(MaxPositionsAllowed, MagicNumber, OnJournaling) == False){
       if(EntrySignal(CrossTriggered)==1){ // Open Long Positions
-         OpenPosition(OP_BUY, GetLot(IsSizingOn, Lots, Risk, YenPairAdjustFactor, Stop, P), Stop, Take, MagicNumber, Slippage, OnJournaling, P, IsECNbroker, MaxRetriesPerTick);
+         OpenPositionMarket(OP_BUY, GetLot(IsSizingOn, Lots, Risk, YenPairAdjustFactor, Stop, P), Stop, Take, MagicNumber, Slippage, OnJournaling, P, IsECNbroker, MaxRetriesPerTick);
         }
 
       if(EntrySignal(CrossTriggered)==2){ // Open Short Positions
-         OpenPosition(OP_SELL, GetLot(IsSizingOn, Lots, Risk, YenPairAdjustFactor, Stop, P), Stop, Take, MagicNumber, Slippage, OnJournaling, P, IsECNbroker, MaxRetriesPerTick);
+         OpenPositionMarket(OP_SELL, GetLot(IsSizingOn, Lots, Risk, YenPairAdjustFactor, Stop, P), Stop, Take, MagicNumber, Slippage, OnJournaling, P, IsECNbroker, MaxRetriesPerTick);
         }
    }
 
@@ -147,7 +147,7 @@ Content:
 4) CheckLot
 5) CountPosOrders
 6) IsMaxPositionsReached
-7) OpenPosition
+7) OpenPositionMarket
 8) ClosePosition
 9) GetP
 10) GetYenAdjustFactor
@@ -317,7 +317,7 @@ bool IsMaxPositionsReached(int MaxPositions, int Magic, bool Journaling){
 //+------------------------------------------------------------------+
 //| OPEN FROM MARKET
 //+------------------------------------------------------------------+
-int OpenPosition(int TYPE, double LOT, int SL, int TP, int Magic, int Slip, bool Journaling, int K, bool ECN, int Max_Retries_Per_Tick){
+int OpenPositionMarket(int TYPE, double LOT, int SL, int TP, int Magic, int Slip, bool Journaling, int K, bool ECN, int Max_Retries_Per_Tick){
 // Type: Fixed Template 
 // Do not edit unless you know what you're doing 
 
@@ -349,6 +349,8 @@ int OpenPosition(int TYPE, double LOT, int SL, int TP, int Magic, int Slip, bool
         {
          RefreshRates();
          if(TYPE==OP_BUY)price=Ask;if(TYPE==OP_SELL)price=Bid;
+         
+         // Sets Take Profits and Stop Loss. Check against Stop Level Limitations.
          if(TYPE==OP_BUY && SL!=0)
            {
             stoploss=NormalizeDouble(Ask-SL*K*Point,Digits);
@@ -389,6 +391,8 @@ int OpenPosition(int TYPE, double LOT, int SL, int TP, int Magic, int Slip, bool
         }
       if(Ticket>0 && OrderSelect(Ticket,SELECT_BY_TICKET)==true && (SL!=0 || TP!=0))
         {
+        
+        // Sets Take Profits and Stop Loss. Check against Stop Level Limitations.
          if(TYPE==OP_BUY && SL!=0)
            {
             stoploss=NormalizeDouble(OrderOpenPrice()-SL*K*Point,Digits);
