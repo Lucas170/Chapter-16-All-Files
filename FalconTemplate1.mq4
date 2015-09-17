@@ -21,11 +21,11 @@ extern double  Risk = 1; // Risk per trade (in percentage)
 
 extern string  Header3 = "----------TP & SL Settings-----------";
 
-extern int     FixedStopLoss = 0; // Hard Stop in Pips. Will be overridden if vol-based SL is true 
+extern double     FixedStopLoss = 0.5; // Hard Stop in Pips. Will be overridden if vol-based SL is true 
 extern bool    IsVolatilityStopOn = True;
 extern int     VolBasedSLMultipler = 1; // Stop Loss Amount in units of Volatility
 
-extern int     FixedTakeProfit = 0; // Hard Take Profit in Pips. Will be overridden if vol-based TP is true 
+extern double     FixedTakeProfit = 0; // Hard Take Profit in Pips. Will be overridden if vol-based TP is true 
 extern bool    IsVolatilityTakeProfitOn = True; 
 extern int     VolBasedTPMultipler = 2; // Take Profit Amount in units of Volatility
 
@@ -43,12 +43,12 @@ extern bool    OnJournaling = true; // Add EA updates in the Journal Tab
 
 string  InternalHeader1="----------Errors Handling Settings-----------";
 int     RetryInterval=100; // Pause Time before next retry (in milliseconds)
-int     MaxRetriesPerTick=10;
+int     MaxRetriesPerTick=1;
 
 string  InternalHeader2="----------Service Variables-----------";
 
-int Stop;
-int Take;
+double Stop;
+double Take;
 double P, YenPairAdjustFactor;
 double myATR;
 double FastMA1, SlowMA1;
@@ -317,7 +317,7 @@ bool IsMaxPositionsReached(int MaxPositions, int Magic, bool Journaling){
 //+------------------------------------------------------------------+
 //| OPEN FROM MARKET
 //+------------------------------------------------------------------+
-int OpenPositionMarket(int TYPE, double LOT, int SL, int TP, int Magic, int Slip, bool Journaling, int K, bool ECN, int Max_Retries_Per_Tick){
+int OpenPositionMarket(int TYPE, double LOT, double SL, double TP, int Magic, int Slip, bool Journaling, int K, bool ECN, int Max_Retries_Per_Tick){
 // Type: Fixed Template 
 // Do not edit unless you know what you're doing 
 
@@ -354,22 +354,22 @@ int OpenPositionMarket(int TYPE, double LOT, int SL, int TP, int Magic, int Slip
          if(TYPE==OP_BUY && SL!=0)
            {
             stoploss=NormalizeDouble(Ask-SL*K*Point,Digits);
-            if(Bid>stoploss && Bid-stoploss<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)stoploss=NormalizeDouble(Bid-MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
+            if(Bid-stoploss<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)stoploss=NormalizeDouble(Bid-MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
            }
          if(TYPE==OP_SELL && SL!=0)
            {
             stoploss=NormalizeDouble(Bid+SL*K*Point,Digits);
-            if(stoploss>Ask && stoploss-Ask<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)stoploss=NormalizeDouble(Ask+MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
+            if(stoploss-Ask<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)stoploss=NormalizeDouble(Ask+MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
            }
          if(TYPE==OP_BUY && TP!=0)
            {
             takeprofit=NormalizeDouble(Ask+TP*K*Point,Digits);
-            if(takeprofit>Ask && takeprofit-Ask<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)takeprofit=NormalizeDouble(Ask+MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
+            if(takeprofit-Bid<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)takeprofit=NormalizeDouble(Ask+MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
            }
          if(TYPE==OP_SELL && TP!=0)
            {
             takeprofit=NormalizeDouble(Bid-TP*K*Point,Digits);
-            if(Bid>takeprofit && Bid-takeprofit<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)takeprofit=NormalizeDouble(Bid-MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
+            if(Ask-takeprofit<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)takeprofit=NormalizeDouble(Bid-MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
            }
          if(Journaling)Print("EA Journaling: Trying to place a market order...");
          HandleTradingEnvironment(Journaling, RetryInterval);
@@ -396,22 +396,22 @@ int OpenPositionMarket(int TYPE, double LOT, int SL, int TP, int Magic, int Slip
          if(TYPE==OP_BUY && SL!=0)
            {
             stoploss=NormalizeDouble(OrderOpenPrice()-SL*K*Point,Digits);
-            if(Bid>stoploss && Bid-stoploss<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)stoploss=NormalizeDouble(Bid-MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
+            if(Bid-stoploss<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)stoploss=NormalizeDouble(Bid-MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
            }
          if(TYPE==OP_SELL && SL!=0)
            {
             stoploss=NormalizeDouble(OrderOpenPrice()+SL*K*Point,Digits);
-            if(stoploss>Ask && stoploss-Ask<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)stoploss=NormalizeDouble(Ask+MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
+            if(stoploss-Ask<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)stoploss=NormalizeDouble(Ask+MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
            }
          if(TYPE==OP_BUY && TP!=0)
            {
             takeprofit=NormalizeDouble(OrderOpenPrice()+TP*K*Point,Digits);
-            if(takeprofit>Ask && takeprofit-Ask<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)takeprofit=NormalizeDouble(Ask+MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
+            if(takeprofit-Bid<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)takeprofit=NormalizeDouble(Ask+MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
            }
          if(TYPE==OP_SELL && TP!=0)
            {
             takeprofit=NormalizeDouble(OrderOpenPrice()-TP*K*Point,Digits);
-            if(Bid>takeprofit && Bid-takeprofit<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)takeprofit=NormalizeDouble(Bid-MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
+            if(Ask-takeprofit<=MarketInfo(Symbol(),MODE_STOPLEVEL)*Point)takeprofit=NormalizeDouble(Bid-MarketInfo(Symbol(),MODE_STOPLEVEL)*Point,Digits);
            }
          bool ModifyOpen=false;
          while(!ModifyOpen)
