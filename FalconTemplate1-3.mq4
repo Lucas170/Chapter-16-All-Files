@@ -110,14 +110,12 @@ int start()
    
       //----------Exit Rules (All Opened Positions)-----------
       
-   if(CountPosOrders(MagicNumber, OP_BUY)>=1 || CountPosOrders(MagicNumber, OP_SELL)>=1){
       if(CountPosOrders(MagicNumber, OP_BUY)>=1 && ExitSignal(CrossTriggered)==1){ // Close Long Positions
          //CloseOrderPosition(OP_BUY, OnJournaling, MagicNumber, Slippage, P); 
       }
       if(CountPosOrders(MagicNumber, OP_SELL)>=1 && ExitSignal(CrossTriggered)==2){ // Close Short Positions
          //CloseOrderPosition(OP_SELL, OnJournaling, MagicNumber, Slippage, P);
-      }
-   }   
+      } 
 
       //----------Entry Rules (Market and Pending) -----------
       
