@@ -563,8 +563,9 @@ int OpenPositionPending(int TYPE, double OpenPrice, datetime expiration, double 
 bool CloseOrderPosition(int TYPE, bool Journaling, int Magic, int Slip , int K){
 // Type: Fixed Template 
 // Do not edit unless you know what you're doing
-
-   for(int i=0; i<OrdersTotal(); i++)
+   int ordersPos = OrdersTotal();
+   
+   for(int i=ordersPos-1; i >= 0; i--)
      {
       // Note: Once pending orders become positions, OP_BUYLIMIT AND OP_BUYSTOP becomes OP_BUY, OP_SELLLIMIT and OP_SELLSTOP becomes OP_SELL
       if(TYPE==OP_BUY || TYPE==OP_SELL)
