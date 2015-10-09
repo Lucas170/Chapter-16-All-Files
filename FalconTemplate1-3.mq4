@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                          Falcon EA Template v1.2
+//|                                          Falcon EA Template v1.3
 //|                                        Copyright 2015,Lucas Liew 
 //|                                  lucas@blackalgotechnologies.com 
 //+------------------------------------------------------------------+
