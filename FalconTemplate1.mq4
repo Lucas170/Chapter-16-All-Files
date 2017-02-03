@@ -122,7 +122,7 @@ int start()
          OpenPositionMarket(OP_BUY, GetLot(IsSizingOn, Lots, Risk, YenPairAdjustFactor, Stop, P), Stop, Take, MagicNumber, Slippage, OnJournaling, P, IsECNbroker, MaxRetriesPerTick);
         }
 
-      if(EntrySignal(CrossTriggered)==2){ // Open Short Positions
+      else if(EntrySignal(CrossTriggered)==2){ // Open Short Positions
          OpenPositionMarket(OP_SELL, GetLot(IsSizingOn, Lots, Risk, YenPairAdjustFactor, Stop, P), Stop, Take, MagicNumber, Slippage, OnJournaling, P, IsECNbroker, MaxRetriesPerTick);
         }
    }
